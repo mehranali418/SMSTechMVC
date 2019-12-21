@@ -1,0 +1,199 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<br />
+<div class="container">
+    <div class="form-horizontal">
+        <div class="form-group">
+            <div class="row">
+                <input type="text" id="ID" style="display:none" />
+                <label class="control-label col-lg-2">Name</label>
+                <input type="text" id="Name" class="form-control col-lg-2" />
+                <label class="control-label col-lg-2">DOB</label>
+                <input type="date" id="DOB" class="form-control col-lg-2" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <label class="control-label col-lg-2">Image</label>
+                <input type="file" id="imageUploadForm" name="image" class="form-control col-lg-2" />
+                <label class="control-label col-lg-2">Gender</label>
+                Male: <input checked="checked"
+                             id="Gender"
+                             name="Gender"
+                             type="radio"
+                             value="Male" />
+
+                Female: <input id="Gender"
+                               name="Gender"
+                               type="radio"
+                               value="Female" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <label class="control-label col-lg-2">Class</label>
+                <input type="text" id="Class" class="form-control col-lg-2" />
+                <label class="control-label col-lg-2">Section</label>
+                <input type="text" id="Section" class="form-control col-lg-2" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="row">
+                <label class="control-label col-lg-2">Status</label>
+                <input type="text" id="Status" class="form-control col-lg-2" />
+                <label class="control-label col-lg-2">DateOfAdmission</label>
+                <input type="date" id="DateOfAdmission" class="form-control col-lg-2" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <input type="button" value="Add" id="btn_Add" class="btn btn-primary" />
+                <input type="button" value="Update" id="btn_Update" class="btn btn-success" />
+            </div>
+        </div>
+    </div>
+        </div>
+        <table class="table table-striped">
+            <tr> 
+                <th>ID</th>
+                <th>Name</th>
+                <th>Date Of Birth</th>
+                <th>Image</th>
+                <th>Gender</th>
+                <th>Class</th>
+                <th>Section</th>
+                <th>Status</th>
+                <th>DateOfAdmission</th>
+                <th>Actions</th>
+            </tr>
+            <tbody id="body"></tbody>
+        </table>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/3/jquery.inputmask.bundle.js"></script>
+        <script src="~/scripts/jquery-1.10.2.min.js"></script>
+        <script>
+            
+            $(document).ready(function () {
+
+                debugger
+                GetData();
+                $("#imageUploadForm").change(function () {
+                    var totalFiles = document.getElementById("imageUploadForm").files.length;
+                    for (var i = 0; i < totalFiles; i++) {
+                        var file = document.getElementById("imageUploadForm").files[i];
+                        Image.append("imageUploadForm", file);
+                    }
+                    $.ajax({
+                        type: "POST",
+                        url: '/TBRegisterStudent/Upload',                       
+                        dataType: 'json',
+                        contentType: false,
+                        processData: false
+
+                    }).done(function () {
+                        alert('success');
+                    }.fail(function (xhr, status, errorThrown) {
+                        alert('fail');
+
+                    })
+
+            )
+
+                })
+            })
+
+
+    function GetData()
+    {
+        $('#body').empty();
+        $.ajax({
+            url: '/TBRegisterStudent/GetData',
+            type:'GET',
+            dataType:'json',
+            contentType:'application/json;charset=utf-8',
+            success: function (result) {
+                var rows = '';
+                $.each(result, function (key, value) {
+                    rows = '<tr>'
+                         + '<td>' + value.ID + '</td>'
+                        + '<td>' + value.Name + '</td>'
+                        + '<td>' + value.DOB + '</td>'
+                        + '<td>' + value.Image + '</td>'
+                        + '<td>' + value.Gender + '</td>'
+                        + '<td>' + value.Class + '</td>'
+                        + '<td>' + value.Section + '</td>'
+                        + '<td>' + value.Status + '</td>'
+                        + '<td>' + value.DateOfAdmission + '</td>'
+                        
+                        + '<td><input type="button" class="btn btn-primary edit" value="Edit"> <input type="button" class="btn btn-danger delete" value="Delete"></td>'
+                    '</tr>'
+                    $('#body').append(rows);
+                })
+            },
+            error:function(result) {
+
+        }
+        })
+    }
+    $(document).delegate('.edit','.click',function(){
+        debugger
+        var rowValue = $(this).closest('tr');
+        var ID = rowValue.find("td:eq(0)").text();
+        var Name = rowValue.find("td:eq(1)").text();
+        var DOB = rowValue.find("td:eq(2)").text();
+        var Gender = rowValue.find("td:eq(3)").text();
+        var Class = rowValue.find("td:eq(4)").text();
+        var Section = rowValue.find("td:eq(5)").text();
+        var Status = rowValue.find("td:eq(6)").text();
+        var DateOfAdmission = rowValue.find("td:eq(7)").text();
+
+        $('#ID').val(ID);
+        $('#Name').val(Name);
+        $('#DOB').val(DOB);
+        $('#Gender').val(Gender);
+        $('#Class').val(Class);
+        $('#Section').val(Section);
+        $('#Status').val(Status);
+        $('#DateOfAdmission').val(DateOfAdmission);
+       
+
+    })
+    $("#imageUploadForm").change(function () {
+        var totalFiles = document.getElementById("imageUploadForm").files.length;
+        for (var i = 0; i < totalFiles; i++) {
+            var file = document.getElementById("imageUploadForm").files[i];
+            Image.append("imageUploadForm", file);
+        }
+    });
+    $('#btn_Add').click(function () {
+        debugger
+        var Name = $('#Name').val();
+        var DOB = $('#DOB').val();
+        var Gender = $('#Gender').val();
+        var Class = $('#Class').val();
+        var Section = $('#Section').val();
+        var Status = $('#Status').val();
+        var DateOfAdmission = $('#DateOfAdmission').val();
+        $.ajax({
+            url: '/TBRegisterStudent/Insert/',
+            Type: 'Get',
+            dataType: 'json',
+            contentType: 'application/json;charset=utf-8',
+            data: { "Name": Name, "DOB": DOB, "Gender": Gender, "Class": Class, "Section": Section, "Status": Status, "DateOfAdmission": DateOfAdmission },
+            success: function () {
+                alert("Success");
+                GetData();
+            },
+            error: function () {
+                alert("Failed");
+            }
+        })
+    })
+    
+</script>
+
+
